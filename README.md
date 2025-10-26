@@ -6,3 +6,8 @@ Tomas Gabriel De Jesus
 
 ## Requirements 
 
+pip modules:
+- scikit-learn
+- pandas
+- numpy
+- ijson 
