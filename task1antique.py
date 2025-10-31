@@ -24,6 +24,8 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 clf = LogisticRegression()
 clf.fit(X_train, y_train)
 
+# TODO: Use test data set, not the train data set
+
 y_pred = clf.predict(X_test)
 print("Logistic Regression Accuracy:", accuracy_score(y_test, y_pred))
 # Accuracy: 0.5520246027678114. Shows that ranking alone cannot be used by a simple classifier.
