@@ -12,6 +12,14 @@ pip modules:
 - numpy
 - ijson 
 
+## File Structure
+- run.py
+    - Entry point for script execution
+- task_\[name\].py
+    - Program for tasks specific to the named dataset
+
 ## Internal TODO
-- Consolidate the two files? Check in with instructor about if we are supposed to train/test the datasets individually or collectively, 
-e.g only train/test ranking for ANTIQUE, or train off of both ANTIQUE and Neurips, and then test both ANTIQUE and Neurips. Or do we train/test based on all datasets, e.g. ANTIQUE + Neurips + Helpsteer2 + Helpsteer3, and then test the collective data?
+- Get API key for CreateAI or some LLM/NLP classifier to add custom features
+- Calculate F1 Scores and accuracy (Task 1, ...)
+- Move onto group-level detection
+- TODO: For Task 2, currently asking if llm linguistic features need to also be prompted for the dataset_detection data as linguistic features are missing there, and the given data set in the features/llm_enhanced_features are only labeled 'Human'
