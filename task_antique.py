@@ -86,7 +86,21 @@ def main(task_num=5):
 
 # Task 2
 
-    df_llm_train = pd.concat([df_train, pd.read_json(llm_enhanced_trainset_path)], ignore_index=True)
+    llm_feature_score_map = {}
+
+    # populate scores for llm_features
+
+    df_llm_trainset = pd.read_json(llm_enhanced_trainset_path)
+    for k, v in df_llm_trainset.iterrows():
+        sample_query = v['query']
+        sample_llm_enhanced_feature = v['llm_enhanced_feature']
+        if llm_feature_score_map[sample_query] is dict:
+            # TODO: continue working from here
+            pass
+        else:
+            llm_feature_score_map[sample_query] = {}
+
+    """df_llm_train = pd.concat([df_train, pd.read_json(llm_enhanced_trainset_path)], ignore_index=True)
     llm_X_train = task2_features(df_llm_train)
     llm_y_train = encoder.transform(df_llm_train['label'])
 
@@ -105,7 +119,7 @@ def main(task_num=5):
     clf.fit(llm_X_train, llm_y_train)
 
     y_pred = clf.predict(llm_X_test)
-    print("Random Forest Accuracy:", accuracy_score(llm_y_test, y_pred))
+    print("Random Forest Accuracy:", accuracy_score(llm_y_test, y_pred))"""
 
     # Logistic Regression Accuracy: 0.6670811666289849
     # Random Forest Accuracy: 0.6670811666289849
