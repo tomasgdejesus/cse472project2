@@ -53,6 +53,8 @@ def main(task_num=5):
 
     llm_feature_score_map = {} # k = query: str, v = docs: dict (k = doc: str, v: pair (sum, count))
 
+    # TODO: Code is ugly so it would be best to put these into functions
+
     # populate scores for llm_features
     df_llm_trainset = pd.read_json(llm_enhanced_trainset_path)
     for k, sample in df_llm_trainset.iterrows():
