@@ -22,7 +22,3 @@ pip modules:
 - Get API key for CreateAI or some LLM/NLP classifier to add custom features
 - Calculate F1 Scores and accuracy (Task 1, ...)
 - Move onto group-level detection
-- TODO: For Task 2, save llm/linguistic feature corresponding to the sample's query/responses. Then, for the train/test data set, 
-when concatenating, I need to fill in the corresponding features for each sample if it is missing the llm/linguistic feature data.
-    - Structure: llm_feature_score_map, k = query: str, v = docs: dict
-        - docs, k = doc_n, v = avg llm score of doc_n
