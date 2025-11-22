@@ -55,96 +55,60 @@ def main(task_num=5):
     # the score is stored as a pair (sum, count), so that the average score can be calculated
 
     # TODO: Code is ugly so it would be best to put these into functions
+    # TODO: I didn't have to do it like this and it would've been better to just copy the features for every two samples in the actual dataset
 
     # populate scores for llm_features
-    df_llm_trainset = pd.read_json(llm_enhanced_trainset_path)
-    for k, sample in df_llm_trainset.iterrows():
-        sample_query = sample['query']
-        sample_llm_enhanced_feature = sample['llm_enhanced_feature']
-        if sample_query not in llm_feature_score_map:
-            llm_feature_score_map[sample_query] = {}
+    def map_llm_features(dataset):
+        for k, sample in dataset.iterrows():
+            sample_query = sample['query']
+            sample_llm_enhanced_feature = sample['llm_enhanced_feature']
+            if sample_query not in llm_feature_score_map:
+                llm_feature_score_map[sample_query] = {}
 
-        if sample_llm_enhanced_feature is None:
-            continue
+            if sample_llm_enhanced_feature is None:
+                continue
 
-        docs_scores_map = llm_feature_score_map[sample_query]
-        for i in range(3):
-            cur_doc_score = sample_llm_enhanced_feature['Response' + str(i + 1) + ' Score']
-            cur_doc = sample['docs'][i]
-            if cur_doc in docs_scores_map:
-                docs_scores_map[cur_doc] = (docs_scores_map[cur_doc][0] + cur_doc_score, docs_scores_map[cur_doc][1] + 1)
-            else:
-                docs_scores_map[cur_doc] = (cur_doc_score, 1)
+            docs_scores_map = llm_feature_score_map[sample_query]
+            for i in range(3):
+                cur_doc_score = sample_llm_enhanced_feature['Response' + str(i + 1) + ' Score']
+                cur_doc = sample['docs'][i]
+                if cur_doc in docs_scores_map:
+                    docs_scores_map[cur_doc] = (docs_scores_map[cur_doc][0] + cur_doc_score, docs_scores_map[cur_doc][1] + 1)
+                else:
+                    docs_scores_map[cur_doc] = (cur_doc_score, 1)
 
-    for k, sample in pd.read_json(llm_enhanced_testset_path).iterrows():
-        sample_query = sample['query']
-        sample_llm_enhanced_feature = sample['llm_enhanced_feature']
-        if sample_query not in llm_feature_score_map:
-            llm_feature_score_map[sample_query] = {}
-
-        if sample_llm_enhanced_feature is None:
-            continue
-
-        docs_scores_map = llm_feature_score_map[sample_query]
-        for i in range(3):
-            cur_doc_score = sample_llm_enhanced_feature['Response' + str(i + 1) + ' Score']
-            cur_doc = sample['docs'][i]
-            if cur_doc in docs_scores_map:
-                docs_scores_map[cur_doc] = (docs_scores_map[cur_doc][0] + cur_doc_score, docs_scores_map[cur_doc][1] + 1)
-            else:
-                docs_scores_map[cur_doc] = (cur_doc_score, 1)
-
-    missing_doc_count = 0
+    map_llm_features(pd.read_json(llm_enhanced_testset_path))
+    map_llm_features(pd.read_json(llm_enhanced_trainset_path))
 
     # apply matching llm_features to corresponding samples in train set
-    X_train_task2 = []
-    for k, sample in df_train.iterrows():
-        sample_query = sample['query']
-        if sample_query not in llm_feature_score_map:
-            raise Exception("Query not in llm_feature_score_map")
+    def build_task2_dataset(dataset):
+        set_task2 = []
+        for k, sample in dataset.iterrows():
+            sample_query = sample['query']
+            if sample_query not in llm_feature_score_map:
+                raise Exception("Query not in llm_feature_score_map")
 
-        sample_docs = sample['docs']
-        if sample_docs is None:
-            raise Exception("Sample docs is None")
-        
-        llm_ranked_scores = []
+            sample_docs = sample['docs']
+            if sample_docs is None:
+                raise Exception("Sample docs is None")
+            
+            llm_ranked_scores = []
 
-        for i in range(3):
-            cur_doc = sample_docs[i]
-            cur_doc_score = -1 # signifies that the data set contains a response that has zero data for its llm generated judgement
-            if cur_doc in llm_feature_score_map[sample_query]:
-                cur_doc_score = llm_feature_score_map[sample_query][cur_doc][0] / llm_feature_score_map[sample_query][cur_doc][1]
-            else:
-                missing_doc_count += 1
+            for i in range(3):
+                cur_doc = sample_docs[i]
+                cur_doc_score = -1 # signifies that the data set contains a response that has zero data for its llm generated judgement
+                if cur_doc in llm_feature_score_map[sample_query]:
+                    cur_doc_score = llm_feature_score_map[sample_query][cur_doc][0] / llm_feature_score_map[sample_query][cur_doc][1]
 
-            llm_ranked_scores.append(cur_doc_score)
+                llm_ranked_scores.append(cur_doc_score)
 
-        X_train_task2.append(sample['ranking'] + llm_ranked_scores)
+            set_task2.append(sample['ranking'] + llm_ranked_scores)
+        return set_task2
+
+    X_train_task2 = build_task2_dataset(df_train)
     y_train_task2 = encoder.transform(df_train['label'])
 
-    X_test_task2 = []
-    for k, sample in df_test.iterrows():
-        sample_query = sample['query']
-        if sample_query not in llm_feature_score_map:
-            raise Exception("Query not in llm_feature_score_map")
-
-        sample_docs = sample['docs']
-        if sample_docs is None:
-            raise Exception("Sample docs is None")
-        
-        llm_ranked_scores = []
-
-        for i in range(3):
-            cur_doc = sample_docs[i]
-            cur_doc_score = -1 # signifies that the data set contains a response that has zero data for its llm generated judgement
-            if cur_doc in llm_feature_score_map[sample_query]:
-                cur_doc_score = llm_feature_score_map[sample_query][cur_doc][0] / llm_feature_score_map[sample_query][cur_doc][1]
-            else:
-                missing_doc_count += 1
-
-            llm_ranked_scores.append(cur_doc_score)
-
-        X_test_task2.append(sample['ranking'] + llm_ranked_scores)
+    X_test_task2 = build_task2_dataset(df_test)
     y_test_task2 = encoder.transform(df_test['label']) 
 
     clf = LogisticRegression()
@@ -158,7 +122,6 @@ def main(task_num=5):
 
     y_pred = clf.predict(X_test_task2)
     print("Random Forest Classification Accuracy:", accuracy_score(y_test_task2, y_pred))
-    print(f"Missing doc count: {missing_doc_count}")
 
 if __name__ == "__main__":
     main()
