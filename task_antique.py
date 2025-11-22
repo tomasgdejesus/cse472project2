@@ -52,6 +52,7 @@ def main(task_num=5):
 # Task 2
 
     llm_feature_score_map = {} # k = query: str, v = docs: dict (k = doc: str, v: pair (sum, count))
+    # the score is stored as a pair (sum, count), so that the average score can be calculated
 
     # TODO: Code is ugly so it would be best to put these into functions
 
