@@ -4,7 +4,7 @@ Tomas Gabriel De Jesus
 
 1229235672
 
-## NOTE: This code is out of date, refer to:
+## ⚠️ NOTE: This code is out of date, refer to:
 - My fork, https://github.com/tomasgdejesus/Judgement-Detection
 - Main repository, https://github.com/Thati0103/Judgement-Detection
 
